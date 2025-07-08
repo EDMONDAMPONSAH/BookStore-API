@@ -69,6 +69,16 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+// ✅ ✅ ✅ NEW: Register CORS to allow React frontend
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000") // React dev server
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
 var app = builder.Build();
 
@@ -78,6 +88,10 @@ app.UseSwaggerUI();
 
 
 app.UseHttpsRedirection();
+
+
+// ✅ ✅ ✅ NEW: Enable CORS middleware before auth
+app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
 app.UseAuthorization();
