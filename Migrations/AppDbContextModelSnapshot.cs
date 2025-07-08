@@ -64,6 +64,26 @@ namespace BookStore.Api.Migrations
                     b.ToTable("Books");
                 });
 
+            modelBuilder.Entity("BookStore.Api.Models.Image", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("BookId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookId");
+
+                    b.ToTable("Images");
+                });
+
             modelBuilder.Entity("BookStore.Api.Models.User", b =>
                 {
                     b.Property<int>("Id")
@@ -100,6 +120,22 @@ namespace BookStore.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("BookStore.Api.Models.Image", b =>
+                {
+                    b.HasOne("BookStore.Api.Models.Book", "Book")
+                        .WithMany("Images")
+                        .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Book");
+                });
+
+            modelBuilder.Entity("BookStore.Api.Models.Book", b =>
+                {
+                    b.Navigation("Images");
                 });
 
             modelBuilder.Entity("BookStore.Api.Models.User", b =>

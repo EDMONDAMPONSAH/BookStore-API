@@ -20,11 +20,14 @@ namespace BookStore.Api.Controllers
         // GET: /api/home
         [HttpGet]
         public async Task<IActionResult> GetAllBooks(
-        string? search,
-        int page = 1,
-        int pageSize = 10)
+            string? search,
+            int page = 1,
+            int pageSize = 10)
         {
-            var query = _context.Books.AsQueryable();
+            var query = _context.Books
+                .Include(b => b.Images)
+                .AsNoTracking()
+                .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -36,16 +39,18 @@ namespace BookStore.Api.Controllers
 
             var total = await query.CountAsync();
 
-            var books = await query
+            var booksData = await query
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-                .Select(b => new BookListDto
-                {
-                    Id = b.Id,
-                    Name = b.Name,
-                    Price = b.Price
-                })
                 .ToListAsync();
+
+            var books = booksData.Select(b => new BookListDto
+            {
+                Id = b.Id,
+                Name = b.Name,
+                Price = b.Price,
+                FirstImageUrl = b.Images.FirstOrDefault()?.Url
+            }).ToList();
 
             return Ok(new
             {
@@ -57,11 +62,13 @@ namespace BookStore.Api.Controllers
         }
 
 
+
         // GET: /api/home/{id}
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBookById(int id)
         {
             var book = await _context.Books
+                .Include(b => b.Images) // 👈 Include related images
                 .Where(b => b.Id == id)
                 .Select(b => new BookDetailDto
                 {
@@ -69,7 +76,8 @@ namespace BookStore.Api.Controllers
                     Name = b.Name,
                     Price = b.Price,
                     Description = b.Description,
-                    Category = b.Category
+                    Category = b.Category,
+                    Images = b.Images.Select(img => img.Url).ToList() // 👈 Add image URLs
                 })
                 .FirstOrDefaultAsync();
 
@@ -78,5 +86,6 @@ namespace BookStore.Api.Controllers
 
             return Ok(book);
         }
+
     }
 }

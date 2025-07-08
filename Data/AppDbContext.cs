@@ -9,16 +9,25 @@ namespace BookStore.Api.Data
 
         public DbSet<Book> Books { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Image> Images { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Define the one-to-many relationship:
+            // User-Book relationship
             modelBuilder.Entity<User>()
                 .HasMany(u => u.Books)
                 .WithOne(b => b.User)
                 .HasForeignKey(b => b.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+
+            // Book-Image relationship
+            modelBuilder.Entity<Image>()
+                .HasOne(i => i.Book)
+                .WithMany(b => b.Images)
+                .HasForeignKey(i => i.BookId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

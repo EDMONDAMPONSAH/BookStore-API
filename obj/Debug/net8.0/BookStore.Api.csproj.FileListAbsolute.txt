@@ -114,3 +114,5 @@ D:\BookStoreProject\BookStore.Api\obj\Debug\net8.0\BookStore.Api.pdb
 D:\BookStoreProject\BookStore.Api\obj\Debug\net8.0\BookStore.Api.genruntimeconfig.cache
 D:\BookStoreProject\BookStore.Api\obj\Debug\net8.0\ref\BookStore.Api.dll
 D:\BookStoreProject\BookStore.Api\obj\Debug\net8.0\BookStore.Api.sourcelink.json
+D:\BookStoreProject\BookStore.Api\bin\Debug\net8.0\AWSSDK.Core.dll
+D:\BookStoreProject\BookStore.Api\bin\Debug\net8.0\AWSSDK.S3.dll
