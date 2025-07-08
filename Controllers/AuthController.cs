@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using BookStore.Api.Data;
 using BookStore.Api.Models;
+using BookStore.Api.Dtos;
 using System.Security.Cryptography;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -22,32 +23,35 @@ namespace BookStore.Api.Controllers
             _config = config;
         }
 
+        // POST: /api/auth/register
         [HttpPost("register")]
-        public IActionResult Register(string username, string password)
+        public IActionResult Register([FromBody] RegisterDto dto)
         {
-            if (_context.Users.Any(u => u.Username == username))
-                return BadRequest("User already exists");
+            if (_context.Users.Any(u => u.Username == dto.Username))
+                return BadRequest("Username already exists");
 
-            CreatePasswordHash(password, out byte[] hash, out byte[] salt);
+            CreatePasswordHash(dto.Password, out byte[] hash, out byte[] salt);
 
             var user = new User
             {
-                Username = username,
-                Role = "User",
+                Username = dto.Username,
+                Role = "Vendor", // default role
                 PasswordHash = hash,
                 PasswordSalt = salt
             };
 
             _context.Users.Add(user);
             _context.SaveChanges();
+
             return Ok("User registered successfully");
         }
 
+        // POST: /api/auth/login
         [HttpPost("login")]
-        public IActionResult Login(string username, string password)
+        public IActionResult Login([FromBody] LoginDto dto)
         {
-            var user = _context.Users.SingleOrDefault(u => u.Username == username);
-            if (user == null || !VerifyPassword(password, user.PasswordHash, user.PasswordSalt))
+            var user = _context.Users.SingleOrDefault(u => u.Username == dto.Username);
+            if (user == null || !VerifyPassword(dto.Password, user.PasswordHash, user.PasswordSalt))
                 return Unauthorized("Invalid credentials");
 
             var token = GenerateJwtToken(user);
@@ -72,34 +76,29 @@ namespace BookStore.Api.Controllers
         {
             var claims = new[]
             {
-        new Claim(ClaimTypes.Name, user.Username),
-        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-        new Claim(ClaimTypes.Role, user.Role)
-    };
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Role, user.Role)
+            };
 
-            // Validate JWT key
             var jwtKey = _config["Jwt:Key"]
-                ?? throw new InvalidOperationException("JWT secret key is missing from configuration.");
+                ?? throw new InvalidOperationException("JWT key not configured");
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            // Validate and parse expiration time
-            var expiresRaw = _config["Jwt:ExpiresInMinutes"];
-            if (!double.TryParse(expiresRaw, out var expiresInMinutes))
-                throw new InvalidOperationException("JWT expiration time is missing or invalid.");
+            if (!double.TryParse(_config["Jwt:ExpiresInMinutes"], out var expiresInMinutes))
+                throw new InvalidOperationException("JWT expiration not configured properly");
 
-            // Create token
             var token = new JwtSecurityToken(
-                _config["Jwt:Issuer"],
-                _config["Jwt:Audience"],
-                claims,
+                issuer: _config["Jwt:Issuer"],
+                audience: _config["Jwt:Audience"],
+                claims: claims,
                 expires: DateTime.Now.AddMinutes(expiresInMinutes),
                 signingCredentials: creds
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-
     }
 }

@@ -68,7 +68,7 @@ namespace BookStore.Api.Controllers
         public async Task<IActionResult> GetBookById(int id)
         {
             var book = await _context.Books
-                .Include(b => b.Images) // 👈 Include related images
+                .Include(b => b.Images)
                 .Where(b => b.Id == id)
                 .Select(b => new BookDetailDto
                 {
@@ -77,7 +77,7 @@ namespace BookStore.Api.Controllers
                     Price = b.Price,
                     Description = b.Description,
                     Category = b.Category,
-                    Images = b.Images.Select(img => img.Url).ToList() // 👈 Add image URLs
+                    Images = b.Images.Select(img => img.Url).ToList()
                 })
                 .FirstOrDefaultAsync();
 
