@@ -20,23 +20,18 @@ namespace BookStore.Api.Controllers
         // GET: /api/home
         [HttpGet]
         public async Task<IActionResult> GetAllBooks(
-            string? search,
-            string? category,
-            int page = 1,
-            int pageSize = 2)
+        string? search,
+        int page = 1,
+        int pageSize = 10)
         {
             var query = _context.Books.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(search))
             {
-                var normalizedSearch = search.Trim().ToLower();
-                query = query.Where(b => b.Name.ToLower().Contains(normalizedSearch));
-            }
-
-            if (!string.IsNullOrWhiteSpace(category))
-            {
-                var normalizedCategory = category.Trim().ToLower();
-                query = query.Where(b => b.Category.ToLower().Contains(normalizedCategory));
+                var normalized = search.Trim().ToLower();
+                query = query.Where(b =>
+                    b.Name.ToLower().Contains(normalized) ||
+                    b.Category.ToLower().Contains(normalized));
             }
 
             var total = await query.CountAsync();
@@ -60,6 +55,7 @@ namespace BookStore.Api.Controllers
                 data = books
             });
         }
+
 
         // GET: /api/home/{id}
         [HttpGet("{id}")]
