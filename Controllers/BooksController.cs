@@ -25,7 +25,11 @@ namespace BookStore.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetBooks()
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!int.TryParse(userIdClaim, out var userId))
+                return Unauthorized("Invalid or missing user ID");
+
             var role = User.FindFirst(ClaimTypes.Role)?.Value;
 
             var books = role == "Admin"
@@ -51,7 +55,10 @@ namespace BookStore.Api.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBook(int id)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(claim, out var userId))
+                throw new UnauthorizedAccessException("Invalid or missing user ID claim.");
+
             var role = User.FindFirst(ClaimTypes.Role)?.Value;
 
             var book = await _context.Books.Include(b => b.User).FirstOrDefaultAsync(b => b.Id == id);
@@ -79,8 +86,14 @@ namespace BookStore.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateBook(BookCreateDto bookDto)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            var username = User.FindFirst(ClaimTypes.Name)?.Value;
+            var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!int.TryParse(claim, out var userId))
+                return Unauthorized("Invalid or missing user ID");
+
+            var username = User.FindFirst(ClaimTypes.Name)?.Value
+    ?? throw new UnauthorizedAccessException("Missing username claim.");
+
 
             var book = new Book
             {
@@ -118,7 +131,10 @@ namespace BookStore.Api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateBook(int id, BookCreateDto bookDto)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(claim, out var userId))
+                throw new UnauthorizedAccessException("Invalid or missing user ID claim.");
+
             var role = User.FindFirst(ClaimTypes.Role)?.Value;
 
             var existing = await _context.Books.FindAsync(id);
@@ -131,7 +147,9 @@ namespace BookStore.Api.Controllers
             existing.Category = bookDto.Category;
             existing.Price = bookDto.Price;
             existing.Description = bookDto.Description;
-            existing.UpdatedBy = User.FindFirst(ClaimTypes.Name)?.Value;
+            existing.UpdatedBy = User.FindFirst(ClaimTypes.Name)?.Value
+    ?? throw new UnauthorizedAccessException("Username claim is missing.");
+
             existing.UpdatedAt = DateTime.UtcNow;
 
 
@@ -144,7 +162,10 @@ namespace BookStore.Api.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBook(int id)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(claim, out var userId))
+                throw new UnauthorizedAccessException("Invalid or missing user ID claim.");
+
             var role = User.FindFirst(ClaimTypes.Role)?.Value;
 
             var book = await _context.Books.FindAsync(id);

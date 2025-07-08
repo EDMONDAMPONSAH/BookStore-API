@@ -23,7 +23,9 @@ namespace BookStore.Api.Controllers
         [HttpGet("my-books")]
         public async Task<IActionResult> GetMyBooks()
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(claim, out var userId))
+                throw new UnauthorizedAccessException("Invalid or missing user ID in token.");
 
             var books = await _context.Books
                 .Where(b => b.UserId == userId)
@@ -42,7 +44,10 @@ namespace BookStore.Api.Controllers
         [HttpGet("my-stats")]
         public async Task<IActionResult> GetMyStats()
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!int.TryParse(claim, out var userId))
+                throw new UnauthorizedAccessException("Invalid or missing user ID claim in token.");
 
             var total = await _context.Books.CountAsync(b => b.UserId == userId);
             var sum = await _context.Books

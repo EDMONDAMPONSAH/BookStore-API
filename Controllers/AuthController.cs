@@ -72,23 +72,34 @@ namespace BookStore.Api.Controllers
         {
             var claims = new[]
             {
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Role, user.Role)
-            };
+        new Claim(ClaimTypes.Name, user.Username),
+        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+        new Claim(ClaimTypes.Role, user.Role)
+    };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+            // Validate JWT key
+            var jwtKey = _config["Jwt:Key"]
+                ?? throw new InvalidOperationException("JWT secret key is missing from configuration.");
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
+            // Validate and parse expiration time
+            var expiresRaw = _config["Jwt:ExpiresInMinutes"];
+            if (!double.TryParse(expiresRaw, out var expiresInMinutes))
+                throw new InvalidOperationException("JWT expiration time is missing or invalid.");
+
+            // Create token
             var token = new JwtSecurityToken(
                 _config["Jwt:Issuer"],
                 _config["Jwt:Audience"],
                 claims,
-                expires: DateTime.Now.AddMinutes(double.Parse(_config["Jwt:ExpiresInMinutes"])),
+                expires: DateTime.Now.AddMinutes(expiresInMinutes),
                 signingCredentials: creds
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
     }
 }
