@@ -13,11 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BookStore.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-<<<<<<< HEAD
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b6d23eb538183d9d7dc14077f1197329040699bd")]
-=======
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+03dd1c0c2877785ccfab92610c8595556c026cfa")]
->>>>>>> admin-dash
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+304a8bcb91244bd69b59f6829eecfab633ae7ad2")]
 [assembly: System.Reflection.AssemblyProductAttribute("BookStore.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BookStore.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
