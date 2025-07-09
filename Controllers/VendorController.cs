@@ -20,7 +20,7 @@ namespace BookStore.Api.Controllers
         }
 
         // GET: /api/vendor/my-books
-       [HttpGet("my-books")]
+        [HttpGet("my-books")]
         public async Task<IActionResult> GetMyBooks()
         {
             var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -30,29 +30,25 @@ namespace BookStore.Api.Controllers
             var books = await _context.Books
                 .Where(b => b.UserId == userId)
                 .Include(b => b.Images)
-                .ToListAsync(); // fetches from DB
+                .ToListAsync();
 
-            
             var result = books.Select(b => new BookListDto
             {
                 Id = b.Id,
                 Name = b.Name,
                 Price = b.Price,
                 Category = b.Category,
-                FirstImageUrl = b.Images.FirstOrDefault()?.Url 
-            }).ToList(); // 
+                FirstImageUrl = b.Images.FirstOrDefault()?.Url
+            }).ToList();
 
             return Ok(result);
         }
-
-
 
         // GET: /api/vendor/my-stats
         [HttpGet("my-stats")]
         public async Task<IActionResult> GetMyStats()
         {
             var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
             if (!int.TryParse(claim, out var userId))
                 throw new UnauthorizedAccessException("Invalid or missing user ID claim in token.");
 
@@ -66,6 +62,33 @@ namespace BookStore.Api.Controllers
                 totalBooks = total,
                 totalValue = sum
             });
+        }
+
+        // GET /api/vendor/my-sales
+        [HttpGet("my-sales")]
+        [Authorize(Roles = "User")]
+        public async Task<IActionResult> GetMySales()
+        {
+            var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(claim, out var userId))
+                return Unauthorized("Invalid user session.");
+
+            var sales = await _context.Payments
+                .Include(p => p.Book)
+                .Include(p => p.Buyer)
+                .Where(p => p.Book.UserId == userId && p.Status == "success")
+                .Select(p => new
+                {
+                    BookTitle = p.Book.Name,
+                    Buyer = p.Buyer.Username,
+                    p.Amount,
+                    p.Status,
+                    p.DatePaid,
+                    p.Reference
+                })
+                .ToListAsync();
+
+            return Ok(sales);
         }
     }
 }

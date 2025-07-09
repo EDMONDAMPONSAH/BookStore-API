@@ -36,6 +36,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 // Register S3 Service
 builder.Services.AddScoped<S3Service>();
 
+// Register Paystack Service
+builder.Services.AddScoped<PaystackService>();
+
 // Register Controllers and Swagger
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
