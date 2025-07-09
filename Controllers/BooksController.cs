@@ -62,7 +62,11 @@ namespace BookStore.Api.Controllers
 
             var role = User.FindFirst(ClaimTypes.Role)?.Value;
 
-            var book = await _context.Books.Include(b => b.User).FirstOrDefaultAsync(b => b.Id == id);
+            var book = await _context.Books
+                .Include(b => b.Images) 
+                .Include(b => b.User)
+                .FirstOrDefaultAsync(b => b.Id == id);
+
             if (book == null) return NotFound();
 
             if (role != "Admin" && book.UserId != userId)
@@ -76,11 +80,17 @@ namespace BookStore.Api.Controllers
                 Price = book.Price,
                 Description = book.Description,
                 AddedBy = book.AddedBy,
-                UpdatedBy = book.UpdatedBy
+                UpdatedBy = book.UpdatedBy,
+                Images = book.Images.Select(img => new ImageDto
+                {
+                    Id = img.Id,
+                    Url = img.Url
+                }).ToList()
             };
 
             return Ok(result);
         }
+
 
 
 

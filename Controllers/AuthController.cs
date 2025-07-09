@@ -27,15 +27,22 @@ namespace BookStore.Api.Controllers
         [HttpPost("register")]
         public IActionResult Register([FromBody] RegisterDto dto)
         {
+            // Check if username is in email format
+            if (!IsValidEmail(dto.Username))
+                return BadRequest("Username must be a valid email address.");
+
+            // Check if user already exists
             if (_context.Users.Any(u => u.Username == dto.Username))
                 return BadRequest("Username already exists");
 
+            // Create password hash
             CreatePasswordHash(dto.Password, out byte[] hash, out byte[] salt);
 
+            // Create user entity
             var user = new User
             {
                 Username = dto.Username,
-                Role = "Vendor", // default role
+                Role = "User", // Default role
                 PasswordHash = hash,
                 PasswordSalt = salt
             };
@@ -45,6 +52,15 @@ namespace BookStore.Api.Controllers
 
             return Ok("User registered successfully");
         }
+
+        //  email validation method
+        private bool IsValidEmail(string email)
+        {
+            return System.Text.RegularExpressions.Regex.IsMatch(email,
+                @"^[^@\s]+@[^@\s]+\.[^@\s]+$",
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        }
+
 
         // POST: /api/auth/login
         [HttpPost("login")]

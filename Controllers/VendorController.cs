@@ -20,7 +20,7 @@ namespace BookStore.Api.Controllers
         }
 
         // GET: /api/vendor/my-books
-        [HttpGet("my-books")]
+       [HttpGet("my-books")]
         public async Task<IActionResult> GetMyBooks()
         {
             var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -29,16 +29,23 @@ namespace BookStore.Api.Controllers
 
             var books = await _context.Books
                 .Where(b => b.UserId == userId)
-                .Select(b => new BookListDto
-                {
-                    Id = b.Id,
-                    Name = b.Name,
-                    Price = b.Price
-                })
-                .ToListAsync();
+                .Include(b => b.Images)
+                .ToListAsync(); // fetches from DB
 
-            return Ok(books);
+            
+            var result = books.Select(b => new BookListDto
+            {
+                Id = b.Id,
+                Name = b.Name,
+                Price = b.Price,
+                Category = b.Category,
+                FirstImageUrl = b.Images.FirstOrDefault()?.Url 
+            }).ToList(); // 
+
+            return Ok(result);
         }
+
+
 
         // GET: /api/vendor/my-stats
         [HttpGet("my-stats")]
