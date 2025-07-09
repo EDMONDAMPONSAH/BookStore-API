@@ -1,9 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "gcDPzMbyRBw=",
+  "dgSpecHash": "bN7TgDBHCFU=",
   "success": true,
   "projectFilePath": "D:\\BookStoreProject\\BookStore.Api\\BookStore.Api.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\user\\.nuget\\packages\\awssdk.core\\4.0.0.14\\awssdk.core.4.0.0.14.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\awssdk.s3\\4.0.4.1\\awssdk.s3.4.0.4.1.nupkg.sha512",
     "C:\\Users\\user\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\user\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\8.0.6\\microsoft.aspnetcore.authentication.jwtbearer.8.0.6.nupkg.sha512",
     "C:\\Users\\user\\.nuget\\packages\\microsoft.aspnetcore.openapi\\8.0.6\\microsoft.aspnetcore.openapi.8.0.6.nupkg.sha512",

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using BookStore.Api.Data;
+using BookStore.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +32,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         IssuerSigningKey = new SymmetricSecurityKey(keyBytes)
     };
 });
+
+// Register S3 Service
+builder.Services.AddScoped<S3Service>();
 
 // Register Controllers and Swagger
 builder.Services.AddControllers();
@@ -69,8 +73,19 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+//  Register CORS to allow React frontend
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000") // React dev server
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
 var app = builder.Build();
+
 
 // Middleware
 app.UseSwagger();
@@ -78,6 +93,10 @@ app.UseSwaggerUI();
 
 
 app.UseHttpsRedirection();
+
+
+// Enable CORS middleware 
+app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
 app.UseAuthorization();

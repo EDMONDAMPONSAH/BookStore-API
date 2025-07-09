@@ -11,5 +11,6 @@ namespace BookStore.Api.Dtos
         public string UpdatedBy { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public List<ImageDto> Images { get; set; } = new();
     }
 }

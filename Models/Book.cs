@@ -17,5 +17,7 @@ namespace BookStore.Api.Models
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
 
+        public List<Image> Images { get; set; } = new();
+
     }
 }
