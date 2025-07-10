@@ -7,9 +7,9 @@ namespace BookStore.Api.Models
         public byte[] PasswordHash { get; set; }
         public byte[] PasswordSalt { get; set; }
 
-        public string Role { get; set; } = "User"; // 👈 Default role
+        public string Role { get; set; } = "User"; //  Default role
 
-        // 👇 Navigation property for user-owned books
+        //  Navigation property for user-owned books
         public ICollection<Book> Books { get; set; }
     }
 }
