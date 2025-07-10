@@ -65,8 +65,8 @@ namespace BookStore.Api.Controllers
             await _context.SaveChangesAsync();
 
             var redirectUrl = success
-                ? "http://localhost:3000/payment-success?ref=" + reference
-                : "http://localhost:3000/payment-failed?ref=" + reference;
+                ? "http://bookstore-frontend-innorik.s3-website-us-east-1.amazonaws.com/payment-success?ref=" + reference
+                : "http://bookstore-frontend-innorik.s3-website-us-east-1.amazonaws.com/payment-failed?ref=" + reference;
 
             return Redirect(redirectUrl);
         }
